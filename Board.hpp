@@ -10,7 +10,7 @@ class Board {
     Coordinate       c[81];
     int              posX, posY;
     int              difficulty;
-    std::vector<int> hide;
+    std::vector<int> hide;  //[1,81,5,65]
 
    public:
     Board();
@@ -48,6 +48,9 @@ void Board::display() {
             } else {
                 // Si el numero es valido lo imprime normal
                 if (c[i + 9 * j].getValid()) {
+                    // Obtiene la visibilidad
+                    // 1 es No visible
+                    // 2 es
                     switch (c[i + 9 * j].getVisibility()) {
                         case 1:
                             std::cout << "  ";
@@ -208,6 +211,6 @@ void Board::help() {
 bool Board::win() {
     if (hide.size() == 0) return true;
     for (int v : hide)
-        if (c[v].getVisibility() == 1) return false;
+        if (c[v].getVisibility() == 1 || !c[v].getValid()) return false;
     return true;
 }

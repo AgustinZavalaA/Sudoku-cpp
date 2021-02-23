@@ -71,7 +71,7 @@ def fill(board, idx=0):
 
         print(checkRow(x, y) and checkCol(x, y) and checkBox(x, y))
         show()
-        # time.sleep(0.5)
+        time.sleep(0.5)
         if checkRow(x, y) and checkCol(x, y) and checkBox(x, y):
 
             if fill(board, idx + 1):
