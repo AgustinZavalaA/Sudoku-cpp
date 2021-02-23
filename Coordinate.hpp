@@ -11,6 +11,8 @@ class Coordinate {
     void setData(int);
     bool getValid();
     void setValid(bool);
+    int  getVisibility();
+    void setVisibility(int);
 };
 
 Coordinate::Coordinate() {
@@ -28,3 +30,7 @@ void Coordinate::setData(int d) { data = d; }
 bool Coordinate::getValid() { return valid; }
 
 void Coordinate::setValid(bool v) { valid = v; }
+
+int Coordinate::getVisibility() { return visibility; }
+
+void Coordinate::setVisibility(int v) { visibility = v; }

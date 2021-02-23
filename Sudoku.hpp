@@ -16,7 +16,8 @@ Sudoku::~Sudoku() {}
 
 void Sudoku::play() {
     char opt;
-    b.randomFill();
+    b.randomFill(0);
+    b.hideC();
     while (1) {
         // std::cout << "\033[2J";
         b.display();
@@ -29,10 +30,11 @@ void Sudoku::play() {
         } else {
             switch (opt) {
                 case 'R':
-                    // Restart
+                    b.randomFill(0);
+                    b.hideC();
                     break;
                 case 'X':
-                    // set data to 0
+                    b.setCoord(0);
                     break;
                 case 'H':
                     b.changePosX(-1);

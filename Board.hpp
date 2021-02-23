@@ -7,9 +7,10 @@
 
 class Board {
    private:
-    Coordinate c[81];
-    int        posX, posY;
-    int        difficulty;
+    Coordinate       c[81];
+    int              posX, posY;
+    int              difficulty;
+    std::vector<int> hide;
 
    public:
     Board();
@@ -17,11 +18,13 @@ class Board {
     void display();
     void changePosX(int);
     void changePosY(int);
+    void changeDiff(int);
     void setCoord(int);
     bool checkRow();
     bool checkColumn();
     bool checkBox();
-    void randomFill();
+    bool randomFill(int);
+    void hideC();
 };
 
 Board::Board() {
@@ -38,11 +41,26 @@ void Board::display() {
         std::cout << "\033[;34m" << i + 1 << "   \033[;37m";
         for (int j = 0; j < 9; j++) {
             if (posX == j && posY == i) {
+                // Imprime el cuadrito
                 std::cout << "\033[1;31m\u25A0 \033[;37m";
             } else {
+                // Si el numero es valido lo imprime normal
                 if (c[i + 9 * j].getValid()) {
-                    std::cout << c[i + 9 * j].getData() << " ";
+                    switch (c[i + 9 * j].getVisibility()) {
+                        case 1:
+                            std::cout << "  ";
+                            break;
+                        case 2:
+                            std::cout << "\033[1;93m" << c[i + 9 * j].getData()
+                                      << " \033[;37m";
+                            break;
+                        default:
+                            std::cout << "\033[1;92m" << c[i + 9 * j].getData()
+                                      << " ";
+                            break;
+                    }
                 } else {
+                    // de lo contrario lo imprime rojo
                     std::cout << "\033[1;31m" << c[i + 9 * j].getData()
                               << " \033[;37m";
                 }
@@ -69,9 +87,18 @@ void Board::changePosY(int y) {
     if (posY < 0) posY = 8;
 }
 
+void Board::changeDiff(int d) { difficulty = (d > 80 || d < 0) ? 10 : d; }
+
 void Board::setCoord(int x) {
-    c[posY + posX * 9].setData(x);
-    c[posY + posX * 9].setValid(checkBox() && checkRow() && checkColumn());
+    if (x != 0) {
+        c[posY + posX * 9].setData(x);
+        c[posY + posX * 9].setVisibility(0);
+        c[posY + posX * 9].setValid(checkBox() && checkRow() && checkColumn());
+    } else {
+        c[posY + posX * 9].setData(x);
+        c[posY + posX * 9].setVisibility(1);
+        c[posY + posX * 9].setValid(checkBox() && checkRow() && checkColumn());
+    }
 }
 
 bool Board::checkRow() {
@@ -99,7 +126,7 @@ bool Board::checkColumn() {
 }
 
 bool Board::checkBox() {
-    int posStart       = int(posY / 3) * 27 + int(posX / 3) * 3;
+    int posStart       = int(posX / 3) * 27 + int(posY / 3) * 3;
     int repetition[10] = {0};
     for (int i = posStart; i < posStart + 3; i++) {
         repetition[c[i].getData()] += 1;
@@ -116,71 +143,50 @@ bool Board::checkBox() {
     return true;
 }
 
-void Board::randomFill() {
-    srand(time(NULL));
-    // for (int i = 0; i < 81; i++) {
-    //    do {
-    //        c[i].setData(rand() % 9 + 1);
-    //        c[i].setValid(checkBox() && checkRow() && checkColumn());
-    //    } while (!c[i].getValid());
-    //}
-    // for (posX = 0; posX < 9; posX++) {
-    //    for (posY = 0; posY < 9; posY++) {
-    //        // std::cout << posX << ":" << posY << " ";
-    //        int i = 0;
-    //        while (1) {
-    //            c[posY + posX * 9].setData(rand() % 9 + 1);
-    //            c[posY + posX * 9].setValid(checkBox() && checkRow//() &&
-    //                                        checkColumn());
-    //            std::cout << c[posY + posX * 9].getValid() << " ";
-    //            if (c[posY + posX * 9].getValid()) break;
-    //            i++;
-    //            if (i > 9) {
-    //                i = 0;
-    //                // if (posY == 0)
-    //                //    posX -= 1;
-    //                // else
-    //                //    posY -= 1;
-    //                break;
-    //            }
-    //        }
-    //    }
-    //}
-    // posX = 0;
-    // posY = 0;
-    std::vector<int> Available[81];
-    for (int i = 0; i < 81; i++) {
-        for (int j = 1; j < 10; j++) Available[i].push_back(j);
-    }
-    int i = 0;
-    while (i < 81) {
-        printf("%d\n", Available[i].size());
-        if (Available[i].size()) {
-            int random = rand() % Available[i].size();
-            int numR   = Available[i].at(random);
+bool Board::randomFill(int idx) {
+    srand((int)time(0));
+    // caso base
+    if (idx == 81) return true;
+    // vector de posibilidades
+    std::vector<int> posi = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    while (posi.size()) {
+        int ran  = rand() % posi.size();
+        int nRan = posi.at(ran);
 
-            posX = int(i / 9);
-            posY = i % 9;
-            // setCoord(numR);
+        posX = int(idx / 9);
+        posY = idx % 9;
 
-            c[i].setData(numR);
-            c[i].setValid(checkBox() && checkRow() && checkColumn());
-            printf("%d:%d %d %d\n", i, Available[i].size(), numR,
-                   c[i].getValid());
-            display();
-            if (c[i].getValid()) {
-                i++;
-            }
-            Available[i].erase(Available[i].begin() + random);
-
-        } else {
-            for (int j = 1; j < 10; j++) Available[i].push_back(j);
-            // posX = int(i / 9);
-            // posY = i % 9;
-            // setCoord(0);
-            c[i].setData(0);
-            c[i].setValid(1);
-            i -= 1;
+        setCoord(nRan);
+        c[idx].setVisibility(2);
+        // display();
+        if (c[idx].getValid()) {
+            if (randomFill(idx + 1)) return true;
         }
+        setCoord(0);
+        posi.erase(posi.begin() + ran);
+    }
+    return false;
+}
+
+bool existInVector(std::vector<int> h, int r) {
+    for (int v : h) {
+        if (v == r) return true;
+    }
+    return false;
+}
+
+void Board::hideC() {
+    srand((int)time(0));
+    // generar una lista con numeros unicos a eliminar
+    for (int i = 0; i < difficulty; i++) {
+        int ran = rand() % 81;
+        while (existInVector(hide, ran)) {
+            ran = rand() % 81;
+        }
+        hide.push_back(ran);
+    }
+    // for (int v : hide) std::cout << v << " ";
+    for (int v : hide) {
+        c[v].setVisibility(1);
     }
 }
