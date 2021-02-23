@@ -25,6 +25,8 @@ class Board {
     bool checkBox();
     bool randomFill(int);
     void hideC();
+    void help();
+    bool win();
 };
 
 Board::Board() {
@@ -52,6 +54,10 @@ void Board::display() {
                             break;
                         case 2:
                             std::cout << "\033[1;93m" << c[i + 9 * j].getData()
+                                      << " \033[;37m";
+                            break;
+                        case 3:
+                            std::cout << "\033[1;96m" << c[i + 9 * j].getData()
                                       << " \033[;37m";
                             break;
                         default:
@@ -178,6 +184,7 @@ bool existInVector(std::vector<int> h, int r) {
 void Board::hideC() {
     srand((int)time(0));
     // generar una lista con numeros unicos a eliminar
+    hide.clear();
     for (int i = 0; i < difficulty; i++) {
         int ran = rand() % 81;
         while (existInVector(hide, ran)) {
@@ -189,4 +196,18 @@ void Board::hideC() {
     for (int v : hide) {
         c[v].setVisibility(1);
     }
+}
+
+void Board::help() {
+    srand((int)time(0));
+    int ran = rand() % hide.size();
+    c[hide.at(ran)].setVisibility(3);
+    hide.erase(hide.begin() + ran);
+}
+
+bool Board::win() {
+    if (hide.size() == 0) return true;
+    for (int v : hide)
+        if (c[v].getVisibility() == 1) return false;
+    return true;
 }

@@ -19,9 +19,14 @@ void Sudoku::play() {
     b.randomFill(0);
     b.hideC();
     while (1) {
-        // std::cout << "\033[2J";
+        std::cout << "\033[2J";
+        if (b.win()) {
+            std::cout << "You won!!!   You won!!!   You won!!!\n";
+            break;
+        }
         b.display();
-        std::cout << "\n[Q] Quit [R] Restart [H,J,K,L] Move [X] Delete\n";
+        std::cout << "\n[Q] Quit [R] Restart [H,J,K,L] Move [X] Delete [E] "
+                     "Help [D] Difficulty\n";
         std::cin >> opt;
         opt = std::toupper(opt);
         if (opt == 'Q') break;
@@ -33,9 +38,11 @@ void Sudoku::play() {
                     b.randomFill(0);
                     b.hideC();
                     break;
+
                 case 'X':
                     b.setCoord(0);
                     break;
+
                 case 'H':
                     b.changePosX(-1);
                     break;
@@ -47,6 +54,20 @@ void Sudoku::play() {
                     break;
                 case 'L':
                     b.changePosX(1);
+                    break;
+
+                case 'E':
+                    b.help();
+                    break;
+
+                case 'D':
+                    int diff;
+                    std::cout
+                        << "Enter the blocks to dissapear [default: 10]\n";
+                    std::cin >> diff;
+                    b.changeDiff(diff);
+                    b.randomFill(0);
+                    b.hideC();
                     break;
 
                 default:
